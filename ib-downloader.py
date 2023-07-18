@@ -19,26 +19,14 @@ BAR_SIZE_MAPPING = {
     'month': '1M'
 }
 
-def calculate_duration(start_str: str, end_str: str) -> str:
-    end = datetime.strptime(end_str, "%Y%m%d %H:%M:%S")
-    if start_str:
-        start = datetime.strptime(start, "%Y%m%d %H:%M:%S")
+def calculate_duration(days: int) -> str: 
+    if days > 365:
+        return f"{days // 365} Y"
+    elif days > 30:
+        return f"{days // 30} M"
     else:
-        start = end - timedelta(days=30) 
+        return f"{days} D"
     
-    duration = end - start
-    if duration.days > 365:
-        return f"{duration.days // 365} Y"
-    elif duration.days > 30:
-        return f"{duration.days // 30} M"
-    elif duration.days > 0:
-        return f"{duration.days} D"
-    elif duration.seconds > 3600:
-        return f"{duration.seconds // 3600} H"
-    elif duration.seconds > 60:
-        return f"{duration.seconds // 60} min"
-    else:
-        return f"{duration.seconds} S"
 
 def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
     contract = Stock(symbol, 'SMART', 'USD')
@@ -51,7 +39,7 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
     df.to_csv(f"{symbol}.csv")
     logger.info(f"Wrote {len(df)} lines to {symbol}.csv")
 
-def download(symbols, file, timeframe, verbose, start, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
+def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
     TICKER # Stock type and SMART exchange
 
@@ -106,8 +94,8 @@ def download(symbols, file, timeframe, verbose, start, tz='America/New_York', id
         with open(file) as f:
             symbols = [ticker.rstrip() for ticker in f.readlines() if not ticker.startswith('#')]
     
-    duration = calculate_duration(start, f"{datetime.now():%Y%m%d %H:%M:%S}")
-    #print(duration)
+    duration = calculate_duration(int(days))
+
     for sym in symbols:
         get_bars(sym, ib, duration=duration, barSize=BAR_SIZE_MAPPING[timeframe])
 
@@ -121,14 +109,14 @@ def main():
     parser.add_argument('--file', help='Read symbols from file', dest='file')
     parser.add_argument('--timeframe', default='day', dest='timeframe')
     parser.add_argument('-v', '--verbose', action='count', dest='verbose')
-    parser.add_argument('--start', dest='start')
+    parser.add_argument('--days', dest='days')
     parser.add_argument('--tz', default='America/New_York', dest='tz')
     parser.add_argument('--id', default='0', dest='id')
     parser.add_argument('--host', default='127.0.0.1', dest='host')
     parser.add_argument('--port', default=7498, type=int, dest='port')
 
     args = parser.parse_args()
-    download(args.symbols, args.file, args.timeframe, args.verbose, args.start, args.tz, args.id, args.host, args.port)
+    download(args.symbols, args.file, args.timeframe, args.verbose, args.days, args.tz, args.id, args.host, args.port)
 
 
 if __name__ == '__main__':
