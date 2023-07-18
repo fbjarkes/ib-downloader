@@ -29,15 +29,19 @@ def calculate_duration(days: int) -> str:
     
 
 def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
-    contract = Stock(symbol, 'SMART', 'USD')
-    #contract = Stock('HM.B', 'SFB', 'SEK')
+    if 'SEK' in symbol:
+        contract = Stock(symbol.split('-')[0], 'SFB', 'SEK')
+    else:
+        contract = Stock(symbol, 'SMART', 'USD')
+    
     bars = ib.reqHistoricalData(
         contract, endDateTime='', durationStr=duration,
         barSizeSetting=barSize, whatToShow='MIDPOINT', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
 
     df = util.df(bars)
-    df.to_csv(f"{symbol}.csv")
-    logger.info(f"Wrote {len(df)} lines to {symbol}.csv ({df['date'][0]}-{df['date'][len(df)-1]})")
+    df = df[['date','open','high','low','close','volume']]
+    df.to_csv(f"{symbol}.csv", index=False)
+    logger.info(f"Wrote {len(df)} lines to {symbol}.csv ({df['date'][0]} - {df['date'][len(df)-1]})")
 
 def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
