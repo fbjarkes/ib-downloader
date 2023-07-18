@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+from datetime import datetime, timedelta
 import logging
 
 from ib_insync import IB, Stock, util
@@ -8,7 +9,28 @@ logger = logging.getLogger(__name__)
 
 FORMAT_TO_UTC_DATE = 2
 
-def get_bars(symbol: str, ib: IB):
+def calculate_duration(start_str: str, end_str: str) -> str:
+    end = datetime.strptime(end_str, "%Y%m%d %H:%M:%S")
+    if start_str:
+        start = datetime.strptime(start, "%Y%m%d %H:%M:%S")
+    else:
+        start = end - timedelta(days=30) 
+    
+    duration = end - start
+    if duration.days > 365:
+        return f"{duration.days // 365} Y"
+    elif duration.days > 30:
+        return f"{duration.days // 30} M"
+    elif duration.days > 0:
+        return f"{duration.days} D"
+    elif duration.seconds > 3600:
+        return f"{duration.seconds // 3600} H"
+    elif duration.seconds > 60:
+        return f"{duration.seconds // 60} min"
+    else:
+        return f"{duration.seconds} S"
+
+def get_bars(symbol: str, ib: IB, duration: str):
     contract = Stock(symbol, 'SMART', 'USD')
     #contract = Stock('HM.B', 'SFB', 'SEK')
     bars = ib.reqHistoricalData(
@@ -17,6 +39,7 @@ def get_bars(symbol: str, ib: IB):
 
     df = util.df(bars)
     df.to_csv(f"{symbol}.csv")
+    logger.info(f"Wrote {len(df)} lines to {symbol}.csv")
 
 def download(symbols, file, timeframe, verbose, start, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
@@ -73,14 +96,16 @@ def download(symbols, file, timeframe, verbose, start, tz='America/New_York', id
         with open(file) as f:
             symbols = [ticker.rstrip() for ticker in f.readlines() if not ticker.startswith('#')]
     
+    duration = calculate_duration(start, f"{datetime.now():%Y%m%d %H:%M:%S}")
+    #print(duration)
     for sym in symbols:
-        get_bars(sym, ib)
-
-
+        get_bars(sym, ib, duration=duration)
 
 
 def main():
-    logging.getLogger('ib_insync').setLevel(logging.DEBUG)
+    # set logging to debug
+    logging.basicConfig(level=logging.INFO)
+    #logging.getLogger('ib_insync').setLevel(logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument('--symbols', default="SPY", help="Comma separated list of symbols", dest='symbols')
     parser.add_argument('--file', help='Read symbols from file', dest='file')
