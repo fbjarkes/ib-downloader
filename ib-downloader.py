@@ -37,7 +37,7 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
 
     df = util.df(bars)
     df.to_csv(f"{symbol}.csv")
-    logger.info(f"Wrote {len(df)} lines to {symbol}.csv")
+    logger.info(f"Wrote {len(df)} lines to {symbol}.csv ({df['date'][0]}-{df['date'][len(df)-1]})")
 
 def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
@@ -95,7 +95,7 @@ def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=
             symbols = [ticker.rstrip() for ticker in f.readlines() if not ticker.startswith('#')]
     
     duration = calculate_duration(int(days))
-
+    logger.info(f"Downloading data for {len(symbols)}")
     for sym in symbols:
         get_bars(sym, ib, duration=duration, barSize=BAR_SIZE_MAPPING[timeframe])
 
