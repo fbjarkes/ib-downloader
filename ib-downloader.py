@@ -8,6 +8,16 @@ from ib_insync import IB, Stock, util
 logger = logging.getLogger(__name__)
 
 FORMAT_TO_UTC_DATE = 2
+BAR_SIZE_MAPPING = {
+    '1min': '1 min',
+    '5min': '5 mins',
+    '15min': '15 mins',
+    '30min': '30 mins',
+    '60min': '1 hour',
+    'day': '1 day',
+    'week': '1W',
+    'month': '1M'
+}
 
 def calculate_duration(start_str: str, end_str: str) -> str:
     end = datetime.strptime(end_str, "%Y%m%d %H:%M:%S")
@@ -30,12 +40,12 @@ def calculate_duration(start_str: str, end_str: str) -> str:
     else:
         return f"{duration.seconds} S"
 
-def get_bars(symbol: str, ib: IB, duration: str):
+def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
     contract = Stock(symbol, 'SMART', 'USD')
     #contract = Stock('HM.B', 'SFB', 'SEK')
     bars = ib.reqHistoricalData(
-        contract, endDateTime='', durationStr='2 D',
-        barSizeSetting='30 mins', whatToShow='MIDPOINT', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
+        contract, endDateTime='', durationStr=duration,
+        barSizeSetting=barSize, whatToShow='MIDPOINT', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
 
     df = util.df(bars)
     df.to_csv(f"{symbol}.csv")
@@ -99,7 +109,7 @@ def download(symbols, file, timeframe, verbose, start, tz='America/New_York', id
     duration = calculate_duration(start, f"{datetime.now():%Y%m%d %H:%M:%S}")
     #print(duration)
     for sym in symbols:
-        get_bars(sym, ib, duration=duration)
+        get_bars(sym, ib, duration=duration, barSize=BAR_SIZE_MAPPING[timeframe])
 
 
 def main():
@@ -109,7 +119,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--symbols', default="SPY", help="Comma separated list of symbols", dest='symbols')
     parser.add_argument('--file', help='Read symbols from file', dest='file')
-    parser.add_argument('--timeframe', default='5min', dest='timeframe')
+    parser.add_argument('--timeframe', default='day', dest='timeframe')
     parser.add_argument('-v', '--verbose', action='count', dest='verbose')
     parser.add_argument('--start', dest='start')
     parser.add_argument('--tz', default='America/New_York', dest='tz')
