@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ib-downloader"
+version = "0.1.0"
+description = "Download IB ticker data to csv"
+authors = ["fbjarkes <fbjarkes-github.q5706@aleeas.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+python-dotenv = "^1.0.0"
+pandas = "^2.0.3"
+ib-insync = "^0.9.86"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.272"
+mypy = "^1.3.0"
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
