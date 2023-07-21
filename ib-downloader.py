@@ -38,6 +38,9 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
         contract, endDateTime='', durationStr=duration,
         barSizeSetting=barSize, whatToShow='TRADES', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
 
+    if not bars:
+        logger.info(f"No data for '{contract}'")
+        return None
     df = util.df(bars)
     df = df[['date','open','high','low','close','volume']]
     df.columns = ['Date','Open','High','Low','Close','Volume']
