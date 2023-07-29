@@ -127,9 +127,10 @@ def main():
     args = parser.parse_args()
     dataframes = download(args.symbols, args.file, args.timeframe, args.verbose, args.days, args.tz, args.id, args.host, args.port)
     for df in dataframes:
-        file = os.path.join(args.output_dir, f"{df.name}.csv")
-        df.to_csv(f"{file}", index=False)
-        logger.info(f"Wrote {len(df)} lines to '{file}' ({df['Date'][0]} - {df['Date'][len(df)-1]})")
+        if df is not None:
+            file = os.path.join(args.output_dir, f"{df.name}.csv")
+            df.to_csv(f"{file}", index=False)
+            logger.info(f"Wrote {len(df)} lines to '{file}' ({df['Date'][0]} - {df['Date'][len(df)-1]})")
     
 
 if __name__ == '__main__':
