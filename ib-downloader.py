@@ -29,14 +29,14 @@ def calculate_duration(days: int) -> str:
         return f"{days} D"
     
 
-def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
+def get_bars(symbol: str, ib: IB, duration: str, barSize: str, end: str):
     if 'SEK' in symbol:
         contract = Stock(symbol.split('-')[0], 'SFB', 'SEK')
     else:
         contract = Stock(symbol, 'SMART', 'USD')
     
     bars = ib.reqHistoricalData(
-        contract, endDateTime='', durationStr=duration,
+        contract, endDateTime=end, durationStr=duration,
         barSizeSetting=barSize, whatToShow='TRADES', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
 
     if not bars:
@@ -48,7 +48,7 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str):
     df.name = symbol
     return df
 
-def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
+def download(symbols, file, timeframe, verbose, days, end, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
     TICKER # Stock type and SMART exchange
 
@@ -105,7 +105,7 @@ def download(symbols, file, timeframe, verbose, days, tz='America/New_York', id=
     
     duration = calculate_duration(int(days))
     logger.info(f"Downloading data for {len(symbols)}")
-    return [get_bars(sym, ib, duration=duration, barSize=BAR_SIZE_MAPPING[timeframe]) for sym in symbols]
+    return [get_bars(sym, ib, duration=duration, barSize=BAR_SIZE_MAPPING[timeframe], end=end) for sym in symbols]
 
 
 def main():
@@ -123,9 +123,10 @@ def main():
     parser.add_argument('--host', default='127.0.0.1', dest='host')
     parser.add_argument('--port', default=7498, type=int, dest='port')
     parser.add_argument('--output-dir', default='.', dest='output_dir')
+    parser.add_argument('--end', default='', dest='end')
 
     args = parser.parse_args()
-    dataframes = download(args.symbols, args.file, args.timeframe, args.verbose, args.days, args.tz, args.id, args.host, args.port)
+    dataframes = download(args.symbols, args.file, args.timeframe, args.verbose, args.days, args.end, args.tz, args.id, args.host, args.port)
     for df in dataframes:
         if df is not None:
             file = os.path.join(args.output_dir, f"{df.name}.csv")
