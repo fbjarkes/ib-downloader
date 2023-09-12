@@ -15,6 +15,9 @@ BAR_SIZE_MAPPING = {
     '15min': '15 mins',
     '30min': '30 mins',
     '60min': '1 hour',
+    '120min': '2 hours',
+    '180min': '3 hours',
+    '240min': '4 hours',
     'day': '1 day',
     'week': '1W',
     'month': '1M'
