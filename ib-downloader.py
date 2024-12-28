@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import logging
 import os
 
-from ib_insync import IB, Stock, util
+#from ib_insync import IB, Stock, util
+from ib_async import IB, util,Stock
+
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +126,7 @@ def main():
     parser.add_argument('--tz', default='America/New_York', dest='tz')
     parser.add_argument('--id', default='0', dest='id')
     parser.add_argument('--host', default='127.0.0.1', dest='host')
-    parser.add_argument('--port', default=7498, type=int, dest='port')
+    parser.add_argument('--port', default=7496, type=int, dest='port')
     parser.add_argument('--output-dir', default='.', dest='output_dir')
     parser.add_argument('--end', default='', dest='end')
 
