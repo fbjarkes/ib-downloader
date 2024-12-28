@@ -4,9 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import os
 
-#from ib_insync import IB, Stock, util
-from ib_async import IB, util,Stock
-
+from ib_async import IB, StartupFetch, StartupFetchNONE, util,Stock
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +99,7 @@ def download(symbols, file, timeframe, verbose, days, end, tz='America/New_York'
     """
     logger.info(f"Connecting IB {host}:{port} with id {id}")
     ib = IB()
-    ib.connect(host, port, clientId=id, readonly=True, timeout=30)
+    ib.connect(host, port, clientId=id, readonly=True, timeout=30, account='',  fetchFields=StartupFetchNONE)
     
     symbols = symbols.split(',')
     if file:
@@ -140,4 +138,5 @@ def main():
     
 
 if __name__ == '__main__':
+    #main()
     main()

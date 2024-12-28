@@ -11,7 +11,7 @@ python = "^3.10"
 python-dotenv = "^1.0.0"
 pandas = "^2.0.3"
 #ib-insync = "^0.9.86"
-ib_async = { path = "../ib_async" }
+ib_async = { git = "https://github.com/fbjarkes/ib_async.git", rev = "main" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.272"
