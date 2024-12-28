@@ -99,8 +99,10 @@ eventkit = "*"
 nest_asyncio = "*"
 
 [package.source]
-type = "directory"
-url = "../ib_async"
+type = "git"
+url = "https://github.com/fbjarkes/ib_async.git"
+reference = "main"
+resolved_reference = "38cf54a66a4daefbd3fd1d7476381f0d178a8198"
 
 [[package]]
 name = "mypy"
@@ -507,4 +509,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7ad4a09e48f2c306a56bbafe16903dcb25278f24a4ce38f73f31f48c7e03dfc7"
+content-hash = "b1177648a1e29e06c44ec36bee432ea69d6cf007f301235c22b584598cea219d"
