@@ -4,13 +4,14 @@ version = "0.1.0"
 description = "Download IB ticker data to csv"
 authors = ["fbjarkes <fbjarkes-github.q5706@aleeas.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 python-dotenv = "^1.0.0"
 pandas = "^2.0.3"
-ib-insync = "^0.9.86"
-
+#ib-insync = "^0.9.86"
+ib_async = { path = "../ib_async" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.272"
