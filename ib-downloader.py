@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import os
 
-from ib_async import IB, StartupFetch, StartupFetchNONE, util,Stock
+from ib_async import IB, StartupFetch, StartupFetchNONE, util,Stock, Forex, Future
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +33,19 @@ def calculate_duration(days: int) -> str:
     
 
 def get_bars(symbol: str, ib: IB, duration: str, barSize: str, end: str):
-    if 'SEK' in symbol:
+    if 'CASH-IDEALPRO' in symbol:
+        # e.g USDSEK-CASH-IDEALPRO 
+        contract = Forex(symbol.split('-')[0], 'IDEALPRO')
+    elif '-FUT' in symbol:
+        contract = Future(symbol.split('-')[0], symbol.split('-')[1], symbol.split('-')[2])
+    elif 'SFB-SEK' in symbol:
         contract = Stock(symbol.split('-')[0], 'SFB', 'SEK')
     else:
         contract = Stock(symbol, 'SMART', 'USD')
-    
+
     bars = ib.reqHistoricalData(
-        contract, endDateTime=end, durationStr=duration,
-        barSizeSetting=barSize, whatToShow='TRADES', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
+    contract, endDateTime=end, durationStr=duration,
+    barSizeSetting=barSize, whatToShow='TRADES', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
 
     if not bars:
         logger.info(f"No data for '{contract}'")
@@ -139,4 +144,6 @@ def main():
 
 if __name__ == '__main__':
     #main()
+    #import sys
+    #sys.argv = ['ib-downloader.py', '--symbols', 'SPY', '--days', '100']
     main()
