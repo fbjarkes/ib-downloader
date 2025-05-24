@@ -33,11 +33,20 @@ def calculate_duration(days: int) -> str:
     
 
 def get_bars(symbol: str, ib: IB, duration: str, barSize: str, end: str):
+    rth = True
+    whatToShow = 'TRADES'
     if 'CASH-IDEALPRO' in symbol:
         # e.g USDSEK-CASH-IDEALPRO 
         contract = Forex(symbol.split('-')[0], 'IDEALPRO')
+        whatToShow = 'MIDPOINT'
+        rth = False
     elif '-FUT' in symbol:
-        contract = Future(symbol.split('-')[0], symbol.split('-')[1], symbol.split('-')[2])
+        #TODO: need multiplier etc.
+        if symbol.endswith('-EUR'):
+            contract = Future(symbol.split('-')[0], symbol.split('-')[1], symbol.split('-')[2], currency='EUR')
+        else:    
+            contract = Future(symbol.split('-')[0], symbol.split('-')[1], symbol.split('-')[2], currency='USD')
+        rth = False
     elif 'SFB-SEK' in symbol:
         contract = Stock(symbol.split('-')[0], 'SFB', 'SEK')
     else:
@@ -45,7 +54,7 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str, end: str):
 
     bars = ib.reqHistoricalData(
     contract, endDateTime=end, durationStr=duration,
-    barSizeSetting=barSize, whatToShow='TRADES', useRTH=True, formatDate=FORMAT_TO_UTC_DATE)
+    barSizeSetting=barSize, whatToShow=whatToShow, useRTH=rth , formatDate=FORMAT_TO_UTC_DATE)
 
     if not bars:
         logger.info(f"No data for '{contract}'")
