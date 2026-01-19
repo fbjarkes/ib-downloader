@@ -67,6 +67,8 @@ def get_bars(symbol: str, ib: IB, duration: str, barSize: str, end: str):
 
 def download(symbols, file, timeframe, verbose, days, end, tz='America/New_York', id=0, host='127.0.0.1', port=7498):
     """
+    NOTE: strips off any suffixes from the ticker symbol separated by ',' if reading from file
+    
     TICKER # Stock type and SMART exchange
 
     TICKER-STK # Stock and SMART exchange
@@ -119,6 +121,8 @@ def download(symbols, file, timeframe, verbose, days, end, tz='America/New_York'
     if file:
         with open(file) as f:
             symbols = [ticker.rstrip() for ticker in f.readlines() if not ticker.startswith('#')]
+            symbols = [s.split(',')[0] for s in symbols]
+            
     
     duration = calculate_duration(int(days))
     logger.info(f"Downloading data for {len(symbols)}")
@@ -138,7 +142,7 @@ def main():
     parser.add_argument('--tz', default='America/New_York', dest='tz')
     parser.add_argument('--id', default='0', dest='id')
     parser.add_argument('--host', default='127.0.0.1', dest='host')
-    parser.add_argument('--port', default=7496, type=int, dest='port')
+    parser.add_argument('--port', default=7498, type=int, dest='port')
     parser.add_argument('--output-dir', default='.', dest='output_dir')
     parser.add_argument('--end', default='', dest='end')
 
